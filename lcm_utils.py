@@ -83,7 +83,7 @@ def rand_string(N=6):
     return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(N))
 #end def rand_string
 
-def plot_CLIO_2D(var2plot,lats,lons,show=False,proj_typ="ortho"):
+def plot_CLIO_2D(var2plot,lats,lons,show=False,proj_typ="ortho", clo=None, cla=None):
 
     import matplotlib.pyplot as plt
     import cartopy.crs as ccrs
@@ -102,7 +102,18 @@ def plot_CLIO_2D(var2plot,lats,lons,show=False,proj_typ="ortho"):
     if proj_typ == "PC":
         ax = plt.axes(projection=ccrs.PlateCarree(central_longitude=0.0, globe=None))
     elif proj_typ == "ortho":
-        ax = plt.axes(projection=ccrs.Orthographic(central_longitude=-70.0, central_latitude=40.0, globe=None))
+        if clo != None:
+          centralLon = clo
+        else:
+          centralLon = -70.0
+        #end if
+        if cla != None:
+          centralLat = cla
+        else:
+          centralLat = 40.0
+        #end if
+
+        ax = plt.axes(projection=ccrs.Orthographic(central_longitude=centralLon, central_latitude=centralLat, globe=None))
     #~ ax = plt.axes(projection=ccrs.Miller(central_longitude=360))
     #~ ax = plt.axes(projection=ccrs.LambertConformal(central_longitude=-180.0, central_latitude=39.0, false_easting=0.0, false_northing=0.0, secant_latitudes=None, standard_parallels=None, globe=None, cutoff=-30))
     #~ ax = plt.axes(projection=ccrs.LambertCylindrical(central_longitude=0.0))
