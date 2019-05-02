@@ -83,7 +83,7 @@ def rand_string(N=6):
     return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(N))
 #end def rand_string
 
-def plot_CLIO_2D(var2plot,lats,lons,show=False):
+def plot_CLIO_2D(var2plot,lats,lons,show=False,proj_typ="ortho"):
 
     import matplotlib.pyplot as plt
     import cartopy.crs as ccrs
@@ -99,12 +99,15 @@ def plot_CLIO_2D(var2plot,lats,lons,show=False):
 
     fig = plt.figure(figsize=(10,10))
 
-    ax = plt.axes(projection=ccrs.PlateCarree(central_longitude=0.0, globe=None))
-    #~ ax = plt.axes(projection=ccrs.Orthographic(central_longitude=-70.0, central_latitude=40.0, globe=None))
+    if proj_typ == "PC":
+        ax = plt.axes(projection=ccrs.PlateCarree(central_longitude=0.0, globe=None))
+    elif proj_typ == "ortho":
+        ax = plt.axes(projection=ccrs.Orthographic(central_longitude=-70.0, central_latitude=40.0, globe=None))
     #~ ax = plt.axes(projection=ccrs.Miller(central_longitude=360))
     #~ ax = plt.axes(projection=ccrs.LambertConformal(central_longitude=-180.0, central_latitude=39.0, false_easting=0.0, false_northing=0.0, secant_latitudes=None, standard_parallels=None, globe=None, cutoff=-30))
     #~ ax = plt.axes(projection=ccrs.LambertCylindrical(central_longitude=0.0))
     #~ ax = plt.axes(projection=ccrs.Mercator(central_longitude=0.0, min_latitude=-80.0, max_latitude=84.0, globe=None, latitude_true_scale=0.0))
+    #endif
     ax.set_global()
     fig.set_facecolor("grey")
 
