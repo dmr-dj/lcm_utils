@@ -2,7 +2,7 @@
 
 """
 Created on Tue Apr 30 16:12:38 CEST 2019
-Last modified, Thu May 2 09:19:27 CEST 2019
+Last modified, Thu May  2 14:09:11 CEST 2019
 
  Copyright 2019 Didier M. Roche <didier.roche@lsce.ipsl.fr>
 
@@ -23,8 +23,9 @@ Last modified, Thu May 2 09:19:27 CEST 2019
 """
 
 # Changes from version 0.0 : initial import of scattered code around
+# Changes from version 0.1 : added smoothing function, suggestion of flhardy
 
-__version__ = "0.1"
+__version__ = "0.2"
 
 
 # from http://stackoverflow.com/questions/2566412/find-nearest-value-in-numpy-array
@@ -76,7 +77,6 @@ def load_CLIO_grid(dummy_f="CLIO3_coordinate_file.nc"):
     return lats, lons, depth  # , salt
 # end def load_CLIO_grid
 
-
 def load_CLIO_var(f_name, var_name):
 
     import netCDF4           as nc
@@ -96,6 +96,36 @@ def rand_string(N=6):
 
     return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(N))
 #end def rand_string
+
+
+# from http://stackoverflow.com/questions/5515720/python-smooth-time-series-data
+def smooth(x,window_len=30,window='hanning'):
+
+        import numpy as np
+
+        if x.ndim != 1:
+            raise ValueError("smooth only accepts 1 dimension arrays.")
+        if x.size < window_len:
+            raise ValueError("Input vector needs"
+                             +" to be bigger than window size.")
+        if window_len<3:
+            return x
+        if not window in ['flat', 'hanning', 'hamming', 'bartlett', 'blackman']:
+            raise ValueError("Window is one of 'flat',"
+                             +"'hanning', 'hamming', 'bartlett', 'blackman'")
+
+        s=np.r_[2*x[0]-x[window_len-1::-1],x,2*x[-1]-x[-1:-window_len:-1]]
+
+        if window == 'flat': #moving average
+            w=np.ones(window_len,'d')
+        else:
+            w=eval('np.'+window+'(window_len)')
+        y=np.convolve(w/w.sum(),s,mode='same')
+        return y[window_len:-window_len+1]
+
+#enddef smooth
+
+
 
 def plot_CLIO_2D(var2plot,lats,lons,show=False,proj_typ="ortho", clo=None, cla=None):
 
