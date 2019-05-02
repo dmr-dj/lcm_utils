@@ -97,6 +97,28 @@ def rand_string(N=6):
     return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(N))
 #end def rand_string
 
+def read_txt(fichname,sep="\t",cols=3):
+    """A function reading a text data file assuming separator (sep) and columns (cols)"""
+
+    from numpy import zeros
+    from numpy import float32
+
+    fich = open(fichname,'r')
+
+    lignes = fich.readlines()
+    taille = len(lignes)
+
+# to be re-written with a "map" argument for any number of fields
+    tab = zeros((cols,taille),float32)
+
+    for i in range(taille):
+        tab[:,i] = [float(dat) for dat in lignes[i].strip().split(sep)]
+    #end for
+
+    fich.close()
+
+    return tab
+# end of function read_txt
 
 # from http://stackoverflow.com/questions/5515720/python-smooth-time-series-data
 def smooth(x,window_len=30,window='hanning'):
