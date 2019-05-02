@@ -76,6 +76,20 @@ def load_CLIO_grid(dummy_f="CLIO3_coordinate_file.nc"):
     return lats, lons, depth  # , salt
 # end def load_CLIO_grid
 
+
+def load_CLIO_var(f_name, var_name):
+
+    import netCDF4           as nc
+
+    f = nc.Dataset(f_name)
+
+    var = f.variables[var_name][...].squeeze()
+
+    f.close()
+
+    return var
+# end def load_CLIO_var
+
 def rand_string(N=6):
     import random
     import string
@@ -112,7 +126,6 @@ def plot_CLIO_2D(var2plot,lats,lons,show=False,proj_typ="ortho", clo=None, cla=N
         else:
           centralLat = 40.0
         #end if
-
         ax = plt.axes(projection=ccrs.Orthographic(central_longitude=centralLon, central_latitude=centralLat, globe=None))
     #~ ax = plt.axes(projection=ccrs.Miller(central_longitude=360))
     #~ ax = plt.axes(projection=ccrs.LambertConformal(central_longitude=-180.0, central_latitude=39.0, false_easting=0.0, false_northing=0.0, secant_latitudes=None, standard_parallels=None, globe=None, cutoff=-30))
