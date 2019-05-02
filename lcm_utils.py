@@ -56,10 +56,19 @@ def find_closest_2D(tagt_lon,tagt_lat,lons_array,lats_array):
     return np.unravel_index(dist_array.argmin(), dist_array.shape)
 #enddef
 
-def load_CLIO_grid(dummy_f="CLIO3_coordinate_file.nc"):
+def load_CLIO_grid(dummy_f=None):
 
     import netCDF4           as nc
     import numpy             as np
+
+
+    if dummy_f == None:
+       import os
+       path = os.path.abspath(__file__)
+       dir_path = os.path.dirname(path)
+       dummy_f = dir_path+"/CLIO3_coordinate_file.nc"
+
+
 
     # Get the coordinates from helper file
     # ====================================
