@@ -83,5 +83,41 @@ def rand_string(N=6):
     return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(N))
 #end def rand_string
 
+def plot_CLIO_2D(var2plot,lats,lons,show=False):
+
+    import matplotlib.pyplot as plt
+    import cartopy.crs as ccrs
+    import numpy as np
+    import numpy.ma as ma
+
+    min_bounds = ma.min(var2plot)
+    max_bounds = ma.max(var2plot)
+    nbs_bounds = 30
+    fix_bounds = np.linspace(min_bounds,max_bounds,nbs_bounds)
+
+    the_chosen_map = plt.cm.coolwarm
+
+    fig = plt.figure(figsize=(10,10))
+
+    ax = plt.axes(projection=ccrs.PlateCarree(central_longitude=0.0, globe=None))
+    #~ ax = plt.axes(projection=ccrs.Orthographic(central_longitude=-70.0, central_latitude=40.0, globe=None))
+    #~ ax = plt.axes(projection=ccrs.Miller(central_longitude=360))
+    #~ ax = plt.axes(projection=ccrs.LambertConformal(central_longitude=-180.0, central_latitude=39.0, false_easting=0.0, false_northing=0.0, secant_latitudes=None, standard_parallels=None, globe=None, cutoff=-30))
+    #~ ax = plt.axes(projection=ccrs.LambertCylindrical(central_longitude=0.0))
+    #~ ax = plt.axes(projection=ccrs.Mercator(central_longitude=0.0, min_latitude=-80.0, max_latitude=84.0, globe=None, latitude_true_scale=0.0))
+    ax.set_global()
+    fig.set_facecolor("grey")
+
+    mesh = ax.pcolormesh(lons, lats, var2plot, cmap=the_chosen_map,
+                     transform=ccrs.PlateCarree(), edgecolor="white",linewidth=0.05,
+                     vmin=min_bounds, vmax=max_bounds)
+    plt.colorbar(mesh, orientation='horizontal', shrink=0.75)
+    ax.gridlines()
+    ax.coastlines()
+
+    if show:
+       plt.show()
+    #end if
+#end def plot_CLIO
 
 # The End of All Things (op. cit.)
