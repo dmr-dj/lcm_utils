@@ -20,6 +20,7 @@ Last modified, Thu May  2 14:09:11 CEST 2019
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 @author: Didier M. Roche a.k.a. dmr
+@author: Jean-Yves Peterschmitt a.k.a. jyp
 """
 
 # Changes from version 0.0 : initial import of scattered code around
@@ -66,9 +67,13 @@ def load_CLIO_grid(dummy_f=None):
        import os
        path = os.path.abspath(__file__)
        dir_path = os.path.dirname(path)
-       dummy_f = dir_path+"/CLIO3_coordinate_file.nc"
+       dummy_f = os.path.join(dir_path,"/CLIO3_coordinate_file.nc")
+    #end if
 
-
+    # Suggestion from jyp ...
+    if not os.path.exists(dummy_f):
+       print("Gros message d'horreur")
+    #endif
 
     # Get the coordinates from helper file
     # ====================================
@@ -79,11 +84,9 @@ def load_CLIO_grid(dummy_f=None):
     lats = f.variables['ulat'][...]
     depth = f.variables['tdepth'][...]
 
-    #~ salt = f.variables['salt'][0,...].squeeze()
-
     f.close()
 
-    return lats, lons, depth  # , salt
+    return lats, lons, depth
 # end def load_CLIO_grid
 
 def load_CLIO_var(f_name, var_name):
@@ -156,8 +159,6 @@ def smooth(x,window_len=30,window='hanning'):
 
 #enddef smooth
 
-
-
 def plot_CLIO_2D(var2plot,lats,lons,show=False,proj_typ="ortho", clo=None, cla=None):
 
     import matplotlib.pyplot as plt
@@ -207,5 +208,90 @@ def plot_CLIO_2D(var2plot,lats,lons,show=False,proj_typ="ortho", clo=None, cla=N
        plt.show()
     #end if
 #end def plot_CLIO
+
+class ProgressBar:
+    """ Creates a text-based progress bar. Call the object with the `print'
+        command to see the progress bar, which looks something like this:
+
+        [=======>        22%                  ]
+
+        You may specify the progress bar's width, min and max values on init.
+
+        Modified after Kelvie Wong version, see http://code.activestate.com/recipes/168639/
+
+        D.M. Roche for present version, added the non re-printing if bar did not change,
+         plus the deleting (clearing of screen after bar finishes)
+    """
+
+    def __init__(self, minValue = 0, maxValue = 100, totalWidth=80):
+        self.progBar = "[]"   # This holds the progress bar string
+        self.min = minValue
+        self.max = maxValue
+        self.span = maxValue - minValue
+        self.width = totalWidth
+        self.amount = 0       # When amount == max, we are 100% done
+        self.updateAmount(0)  # Build progress bar string
+        self._old_pbar = ''
+
+    def updateAmount(self, newAmount = 0):
+        """ Update the progress bar with the new amount (with min and max
+            values set at initialization; if it is over or under, it takes the
+            min or max value as a default. """
+        if newAmount < self.min: newAmount = self.min
+        if newAmount > self.max: newAmount = self.max
+        self.amount = newAmount
+
+        # Figure out the new percent done, round to an integer
+        diffFromMin = float(self.amount - self.min)
+        percentDone = (diffFromMin / float(self.span)) * 100.0
+        percentDone = int(round(percentDone))
+
+        # Figure out how many hash bars the percentage should be
+        allFull = self.width - 2
+        numHashes = (percentDone / 100.0) * allFull
+        numHashes = int(round(numHashes))
+
+        # Build a progress bar with an arrow of equal signs; special cases for
+        # empty and full
+        if numHashes == 0:
+            self.progBar = "[>%s]" % (' '*(allFull-1))
+        elif numHashes == allFull:
+            self.progBar = "[%s]" % ('='*allFull)
+        else:
+            self.progBar = "[%s>%s]" % ('='*(numHashes-1),
+                                        ' '*(allFull-numHashes))
+
+        # figure out where to put the percentage, roughly centered
+        percentPlace = (len(self.progBar) / 2) - len(str(percentDone))
+        percentString = str(percentDone) + "%"
+
+        # slice the percentage into the bar
+        self.progBar = ''.join([self.progBar[0:percentPlace], percentString,
+                                self.progBar[percentPlace+len(percentString):]
+                                ])
+
+    def __str__(self):
+        return str(self.progBar)
+
+    def __call__(self, value):
+        """ Updates the amount, and writes to stdout. Prints a carriage return
+            first, so it will overwrite the current line in stdout."""
+
+        self.updateAmount(value)
+
+        currstr = str(self)
+        if currstr != self._old_pbar:
+          self._old_pbar = currstr
+          print('\r',)
+          sys.stdout.write(str(self))
+          sys.stdout.flush()
+
+    def __del__(self):
+          print('\r',)
+          sys.stdout.write("%s" % (' '*self.width))
+          print('\r',)
+          sys.stdout.flush()
+
+#
 
 # The End of All Things (op. cit.)
