@@ -31,6 +31,7 @@ __version__ = "0.2"
 
 # from http://stackoverflow.com/questions/2566412/find-nearest-value-in-numpy-array
 def find_closest(A,target) :
+    import numpy             as np
     return (np.abs(A-target)).argmin()
 #enddef find_closest
 
@@ -159,6 +160,23 @@ def smooth(x,window_len=30,window='hanning'):
 
 #enddef smooth
 
+# from http://stackoverflow.com/questions/5515720/python-smooth-time-series-data
+def smoothD(x,window_len=30,window='hanning'):
+
+        from numpy import ma
+
+        shapeIn = x.shape
+        Re_X = x.reshape((x.shape[0],x[0,...].size))
+        Re_Y = ma.zeros(Re_X.shape)
+        Re_Y.mask = True
+        for i in range(Re_X.shape[-1]):
+            if not ma.is_masked(Re_X[0,i]):
+               Re_Y[:,i] = smooth(Re_X[:,i],window_len,window=window)
+        #end for
+        return Re_Y.reshape(shapeIn)
+#enddef smoothD
+
+
 def plot_CLIO_2D(var2plot,lats,lons,show=False,proj_typ="ortho", clo=None, cla=None):
 
     import matplotlib.pyplot as plt
@@ -208,6 +226,29 @@ def plot_CLIO_2D(var2plot,lats,lons,show=False,proj_typ="ortho", clo=None, cla=N
        plt.show()
     #end if
 #end def plot_CLIO
+
+def read_var_NC(nc_file,var_list):
+    # Import the dataset to be manipulated
+
+    import netCDF4 as nc
+
+    # Opening file for read
+    f_ile = nc.Dataset(nc_file, mode='r')
+
+    var_listed = []
+
+    for var_name in var_list:
+       try:
+           var = f_ile.variables[var_name]
+           var_listed.append(var)
+       except:
+           print("Could not retrieve variable:"+var_name)
+    #endfor
+
+    return var_listed, f_ile
+
+#end def read_variables_in_file
+
 
 class ProgressBar:
     """ Creates a text-based progress bar. Call the object with the `print'
